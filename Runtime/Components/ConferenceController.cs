@@ -44,6 +44,8 @@ namespace DolbyIO.Comms.Unity
         public GameObject VideoDevice;
         public GameObject ScreenShareSource;
 
+        private VideoDevice? _device = null;
+
         void Start()
         {
             InitialiseConference();
@@ -136,16 +138,22 @@ namespace DolbyIO.Comms.Unity
             }
         }
 
+        public void SetVideoDevice(VideoDevice device)
+        {
+            Debug.Log("Setting video device: " + device.Name);
+            _device = device;
+        }
+
         public void StartVideo()
         {
-            VideoDevice? device = null;
+            // VideoDevice? device = null;
 
             if (VideoDevice)
             {
                 var dropdown = VideoDevice.GetComponent<VideoDeviceDropdown>();
                 if (dropdown)
                 {
-                    device = dropdown.CurrentDevice;
+                    _device = dropdown.CurrentDevice;
                 }
             }
 
@@ -159,7 +167,7 @@ namespace DolbyIO.Comms.Unity
             DolbyIOManager.QueueOnMainThread(() =>
             {
 
-                _sdk.Video.Local.StartAsync(device, _cameraVideoFrameHandler).ContinueWith
+                _sdk.Video.Local.StartAsync(_device, _cameraVideoFrameHandler).ContinueWith
                 (
                     t => Debug.LogError(t.Exception),
                     TaskContinuationOptions.OnlyOnFaulted
